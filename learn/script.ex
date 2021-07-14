@@ -40,6 +40,32 @@ defmodule Scripts do
   end
 end
 
+defmodule Grubbs do
+  sqr = fn x -> x * x end
+  def tryer v, z do
+    cond do
+      v < z ->
+        "No"
+      v >= z ->
+        "Yes"
+    end
+  end
+  def z_crit n, a do
+    t_crit = Statistics.Distributions.T.ppf(n - 2).(a / (2 * n))
+    num = (n - 1) * t_crit
+    den = Statistics.Math.sqrt(n * (n - 2 + sqr(t_crit)))
+    val = num / den
+    abs(val)
+  end
+  def z_score vls, crit do
+    mean = Statistics.mean(vls)
+    std = Statistics.stdev(vls)
+    zis = for v <- vls, do: (abs(mean - v) / std)
+    otls = for v <- zis, do: tryer(v, crit)
+  end
+
+end
+
 # Create a variable that acts as a function (kinda macro)
 # Variable x is a function that prints the argument divided by 2
 x = fn a -> IO.puts(div(a, 2)) end
@@ -59,3 +85,23 @@ lambda = fn x, y, z -> z * y + x end
 # is the same as using capture operator which is:
 lambda = &(&1 * &2 + &3)
 lambda.(2, 3, 4)
+
+# Ranges
+rangeTest = 1..50
+# It also works when passing a variable
+n = 30
+rangeTest = 1..n
+
+# Date Time
+date = ~D[2021-04-21]
+date.year
+date.month
+date.day
+time = ~T[12:15:30]
+time.hour
+time.minute
+time.second
+time.microsecond
+naive_datetime = ~N[2020-03-15 12:13:30]
+datetime = DateTime.from_naive!(naive_datetime, "Etc/UTC")
+datetime.time_zone
